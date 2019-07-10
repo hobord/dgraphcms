@@ -1,0 +1,344 @@
+scalar Date
+
+enum AbtestTypes {
+  master,
+  a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+}
+
+enum VersionState {
+  committed
+  draft
+  waitToApproval
+}
+
+enum CmsDocType {
+  page
+  article
+  guide
+  author
+  term
+}
+
+enum PlacementType {
+  document
+  component
+}
+
+
+type user {
+  id: ID!
+  name: string
+  ADName: string
+}
+
+interface DocumentVersion {
+  id: ID!
+  versionState: VersionState!
+  commitMsg: string!
+  document: Document!
+  hash: string!
+  createdAt: Date!
+  prevVersion: DocumentVersion
+  prevVersionHash: string
+  commitedBy: user!
+}
+
+
+type Vocabulary {
+  id: ID!
+  name: string!
+  cmsDocType: CmsDocType!
+  terms: [Term]
+  createdBy: user!
+}
+
+# type DocumentSchema {
+#   name: CmsDocType!
+# }
+
+type Component {
+  id: ID!
+  name: string!
+  domain: string!
+  machineName: string!
+  configs: [string]
+  createdBy: user!
+}
+
+interface Document {
+  id: ID!
+  cmsDocType: CmsDocType!
+  headVersion: [DocumentVersion!]
+  drafts: [DocumentVersion]
+  waitToApproval: [DocumentVersion]
+  publications: [Publication]
+  terms: [Document]
+  related: [Document]
+  relationType: string
+  createdBy: user!
+  approvedBy: user!
+}
+
+# example Document implementation
+type Article implements Document {
+  id: ID!
+  cmsDocType: CmsDocType!
+  headVersion: [DocumentVersion!]
+  publications: [Publication]
+  terms: [Document]
+  related: [Document]
+  relationType: string
+  author: Document
+  createdBy: user!
+}
+
+type Term implements Document {
+  id: ID!
+  cmsDocType: CmsDocType!
+  headVersion: [DocumentVersion!]
+  publications: [Publication]
+  vocabulary: Vocabulary
+  terms: [Term]
+  parentTerms: [Term]
+  related: [Document]
+  createdBy: user!
+}
+
+
+type Placement {
+  id: ID!
+  placeholder: Placeholder!
+  weight: number
+  type: PlacementType!
+  document: Document
+  component: Component
+  published: boolean!
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  configurations: any
+  createdBy: user!
+}
+
+type Placeholder {
+  id: ID!
+  template: Template!
+  configs: any
+  placements: [Placement]
+  createdBy: user!
+}
+
+type Template {
+  id: ID!
+  domain: string!
+  name: string!
+  baseTemplate: Template
+  placeholders: [Placeholder]
+  createdBy: user!
+}
+
+type Publication {
+  id: ID!
+  hreflangs: [Publication]
+  domain: string!
+  uri: string!
+  document: Document!
+  template: Template!
+  published: boolean!
+  placements: [Placement]
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  createdBy: user!
+  editedBy: user!
+}
+
+type ContextVariable {
+  name: string!
+  value: string!
+}
+
+
+############################################################################################################################################
+# Queries
+
+type Query {
+  getPublicationByID(id: ID!, ctx: [ContextVariable]): Publication
+  getPublicationByUrl(
+    uri: string!
+    domain: string!
+    ctx: [ContextVariable]
+  ): Publication
+  getDocument(id: ID, abtest: AbtestTypes, ctx: [ContextVariable]): Document
+  getDocumentVersion(id: ID, ctx: [ContextVariable]): DocumentVersion
+  getDocumentVersions(documentId: ID, ctx: [ContextVariable]): [DocumentVersion]
+  getDocumentDrafts(documentId: ID): [DocumentVersion]
+  getDocumentsDrafts(): [DocumentVersion]
+  getDocumentWaitToApproval(ctx: [ContextVariable]): [DocumentVersion]
+  getVocabulary(id: ID!): Vocabulary
+  getVocabularies(): [Vocabulary]
+  getTemplate(id: ID!): Template
+  getTemplates(domain: string): [Template]
+  getPlaceholder(id: ID!): Placeholder
+  getPlacement(id: ID!): Placement
+  getComponent(id: ID!): Component
+  getComponents(domain: string): [Component]
+}
+
+############################################################################################################################################
+# Inputs
+
+input DocumentDraftCreateInput {
+  cmsDocType: CmsDocType!
+  terms: [ID!]
+  related: [ID!]
+  #Title body etc
+}
+input DocumentDraftUpdateInput {
+  id: ID!
+  cmsDocType: CmsDocType!
+  terms: [ID!]
+  related: [ID!]
+  #Title body etc
+}
+
+input DocumentCommitInput {
+  id: ID
+  commitMsg: string!
+}
+
+input DocumentHeadVersionInput {
+  documentId: ID!
+  versionId: ID!
+  abtest: AbtestTypes
+}
+
+input PublicationCreateInput {
+  document: ID!
+  template: ID!
+  published: boolean!
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  placements: [ID]
+}
+
+input PublicationUpdateInput {
+  id: ID!
+  document: ID!
+  template: ID!
+  published: boolean!
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  placements: [ID]
+}
+
+input VocabularyCreateInput {
+  name: string!
+  CmsDocType: CmsDocType!
+}
+input VocabularyUpdateInput {
+  id: ID!
+  name: string!
+}
+
+input ComponentCreateInput {
+  name: string!
+  domain: string!
+  machineName: string!
+  configs: [string]
+}
+
+input ComponentUpdateInput {
+  id: ID!
+  name: string!
+  domain: string!
+  machineName: string!
+  configs: [string]
+}
+
+input TemplateCreateInput {
+  domain: string!
+  name: string!
+  baseTemplate: ID
+  placeholders: [ID!]
+}
+input TemplateUpdateInput {
+  id: ID!
+  domain: string!
+  name: string!
+  baseTemplate: ID
+  placeholders: [ID]
+}
+
+input PlaceholderCreateInput {
+  template: ID!
+  configs: string
+  placements: [ID!]
+}
+input PlaceholderUpdateInput {
+  id: ID!
+  template: ID!
+  configs: string
+  placements: [ID]
+}
+
+input PlacementCreateInput {
+  placeholder: ID!
+  weight: number
+  type: PlacementType!
+  document: ID
+  component: ID
+  published: boolean!
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  configurations: [string]
+}
+input PlacementUpdateInput {
+  id: ID!
+  weight: number
+  type: PlacementType!
+  document: ID
+  component: ID
+  published: boolean!
+  scheduledPublishAt: Date
+  scheduledUnPublishAt: Date
+  configurations: [string]
+}
+
+############################################################################################################################################
+# Mutations
+
+type Mutation {
+  ## TODO WRITE BY ALL Content Type... CodeSmell?
+  createDraftDocument(doc: DocumentDraftCreateInput): DocumentVersion
+  updateDraftDocument(doc: DocumentDraftUpdateInput): DocumentVersion
+  deleteDraftDocument(id: ID!): boolean
+  ### 
+
+  promoteToApprovalDocument(doc: DocumentCommitInput): DocumentVersion
+  commitDocument(doc: DocumentCommitInput): DocumentVersion
+  setDocumentHeadVersion(head: DocumentHeadVersionInput): Document
+
+  createVocabulary(vocabulary: VocabularyCreateInput): Vocabulary
+  updateVocabulary(vocabulary: VocabularyUpdateInput): Vocabulary
+  deleteVocabulary(vocabularyID: ID!): Vocabulary
+
+  createComponent(component: ComponentCreateInput): Component
+  updateComponent(component: ComponentUpdateInput): Component
+  deleteComponent(id: ID!): boolean
+
+  createTemplate(template: TemplateCreateInput): Template
+  updateTemplate(template: TemplateUpdateInput): Template
+  deleteTemplate(id: ID!): boolean
+
+  createPlaceholder(placeholder: PlaceholderCreateInput): Placeholder
+  updatePlaceholder(placeholder: PlaceholderUpdateInput): Placeholder
+  deletePlaceholder(id: ID!): boolean
+
+  createPlacement(Placement: PlacementCreateInput): Placement
+  updatePlacement(Placement: PlacementUpdateInput): Placement
+  deletePlacement(id: ID!): boolean
+
+  createPublication(publication: PublicationCreateInput): Publication
+  updatePublication(publication: PublicationUpdateInput): Publication
+  deletePublication(id: ID!): boolean
+}
+

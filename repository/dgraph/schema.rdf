@@ -1,0 +1,24 @@
+<age>: int @index(int) .
+<angularComponent>: default .
+<baseTemplate>: uid .
+<baseVersion>: uid .
+<body>: string @index(fulltext) @lang .
+<commitMsg>: string @index(fulltext) .
+<document>: uid @reverse .
+<domain>: default .
+<gcmsDocType>: string @index(term) .
+<headVersion>: uid .
+<language>: default .
+<name>: string @index(term, trigram) @lang .
+<placeholder>: uid @reverse .
+<placement>: uid @reverse .
+<prevVersion>: uid .
+<published>: bool @index(bool) .
+<scheduledPublishAt>: datetime @index(hour) .
+<scheduledUnPublishAt>: datetime @index(hour) .
+<template>: uid @reverse .
+<title>: string @index(term, trigram) @lang .
+<type>: string @index(term) .
+<uri>: string @index(exact) .
+<versionState>: string @index(term) .
+<weight>: int @index(int) .
