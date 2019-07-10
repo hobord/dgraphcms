@@ -1,4 +1,4 @@
-scalar Date
+scalar DateTime
 
 enum AbtestTypes {
   master,
@@ -6,22 +6,22 @@ enum AbtestTypes {
 }
 
 enum VersionState {
-  committed
-  draft
-  waitToApproval
+  COMMITTED
+  DRAFT
+  WAITTOAPPROVAL
 }
 
 enum CmsDocType {
-  page
-  article
-  guide
-  author
-  term
+  PAGE
+  ARTICLE
+  GUIDE
+  AUTHOR
+  TERM
 }
 
 enum PlacementType {
-  document
-  component
+  DOCUMENT
+  COMPONENT
 }
 
 
@@ -37,7 +37,7 @@ interface DocumentVersion {
   commitMsg: string!
   document: Document!
   hash: string!
-  createdAt: Date!
+  createdAt: DateTime!
   prevVersion: DocumentVersion
   prevVersionHash: string
   commitedBy: user!
@@ -113,16 +113,16 @@ type Placement {
   document: Document
   component: Component
   published: boolean!
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
-  configurations: any
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
+  configurations: [string]
   createdBy: user!
 }
 
 type Placeholder {
   id: ID!
   template: Template!
-  configs: any
+  configs: [string]
   placements: [Placement]
   createdBy: user!
 }
@@ -145,8 +145,8 @@ type Publication {
   template: Template!
   published: boolean!
   placements: [Placement]
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
   createdBy: user!
   editedBy: user!
 }
@@ -215,8 +215,8 @@ input PublicationCreateInput {
   document: ID!
   template: ID!
   published: boolean!
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
   placements: [ID]
 }
 
@@ -225,8 +225,8 @@ input PublicationUpdateInput {
   document: ID!
   template: ID!
   published: boolean!
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
   placements: [ID]
 }
 
@@ -287,8 +287,8 @@ input PlacementCreateInput {
   document: ID
   component: ID
   published: boolean!
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
   configurations: [string]
 }
 input PlacementUpdateInput {
@@ -298,8 +298,8 @@ input PlacementUpdateInput {
   document: ID
   component: ID
   published: boolean!
-  scheduledPublishAt: Date
-  scheduledUnPublishAt: Date
+  scheduledPublishAt: DateTime
+  scheduledUnPublishAt: DateTime
   configurations: [string]
 }
 
