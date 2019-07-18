@@ -1,0 +1,70 @@
+scalar Predicate
+
+input PaginationInput {
+  first: Int
+  offset: Int
+  after: Int
+}
+
+enum OrderEnum {
+  ASC
+  DESC
+}
+
+input OrderInput {
+  type: OrderEnum
+  predicate: [Predicate!]!
+}
+
+input SortInput {
+  by: [OrderInput!]!
+}
+
+enum FilterFuncNameEnum {
+  ALLOFTERMS
+  ANYOFTERMS
+  REGEXP
+  ALLOFTEXT
+  ANYOFTEXT
+  EQ
+  IE
+  LE
+  LT
+  GE
+  GT
+  UID
+  UID_IN
+  HAS
+  NEAR
+  WITHIN
+  CONTAINS
+}
+
+enum FilterConnectionEnum {
+  AND
+  OR
+}
+
+input GroupInput {
+  predicate: [Predicate!]!
+}
+
+input FilterFuncInput {
+  func: FilterFuncNameEnum
+  predicate: [Predicate!]
+  value: String
+  filters: FiltersInput
+}
+
+input FiltersInput {
+  negation: Boolean
+  filters: [FilterFuncInput]
+  connection: FilterConnectionEnum
+}
+
+type Query {
+  aString: String
+  aBoolean: Boolean
+  anInt: Int
+  categories(filters: FiltersInput, group: GroupInput sort: SortInput, order: OrderInput, pagination: PaginationInput): Int
+}
